@@ -2,8 +2,9 @@
 
 ### Development notes
 * WebView needs hosted app
-* To connect to our local app we need to use the machine's ip address (for android), for ios we can use (10.0.2.2).
-* After getting the machine's ip address we need to update the frontend server as well to listen to requests coming to the ip address.
+* Used `ngrok` to get address for our local app, but to support web sockets we need a paid plan.
+* To connect to our local app we need to use (10.0.2.2) for android, for ios we can use localhost
+* Update the frontend server to listen to requests coming from the mentioned addresses.
 * Updated the vite config file to listen to requests coming from all ips.
 * Still the metro server of Expo kept crashing (on android).
 * The fault was the android simulator, somehow the Pixel 7 pro simulator was the cause of the issue. Downloaded a new simulator and the frontend started to load on the mobile app.
