@@ -1,7 +1,7 @@
 import { WebView } from 'react-native-webview';
 
 export default function App() {
-  const webAppUrl = 'http://192.168.10.91:5001';
+  const webAppUrl = 'http://10.0.2.2:5001';
 
   return (
     <>
