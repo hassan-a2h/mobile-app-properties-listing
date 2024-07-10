@@ -27,7 +27,7 @@ export default StyleSheet.create({
     marginBottom: 16,
   },
   textPrimary: {
-    color: '#007bff',
+    color: '#00B98E',
   },
   description: {
     fontSize: 16,
@@ -35,7 +35,7 @@ export default StyleSheet.create({
     paddingBottom: 10,
   },
   button: {
-    backgroundColor: '#007bff',
+    backgroundColor: '#00B98E',
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderRadius: 5,
@@ -46,15 +46,15 @@ export default StyleSheet.create({
     textAlign: 'center',
   },
   imageContainer: {
+    width: '100%',
     alignItems: 'center',
-    marginBottom: 20,
   },
   image: {
     width: '100%',
-    height: 200,
+    height: 300,
     resizeMode: 'cover',
     '@media (min-width: 768px)': {
-      height: 300,
+      height: 350,
     },
   },
 });
