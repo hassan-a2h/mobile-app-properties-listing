@@ -14,47 +14,11 @@ import Testimonials from '../components/Testimonials/Testimonials';
 import Footer from '../components/Footer/Footer';
 
 const HomeScreen = () => {
-  const [listings, setListings] = useState([]);
-  const [filteredListings, setFilteredListings] = useState([]);
-  const { logout, user } = useAuth();
-
-  useEffect(() => {
-    fetchListings();
-  }, []);
-
-  const fetchListings = async () => {
-    try {
-      const response = await axios.get('/api/listings');
-      setListings(response.data);
-      setFilteredListings(response.data);
-    } catch (error) {
-      console.error('Error fetching listings:', error);
-      toast.error('Error fetching listings.');
-    }
-  };
-  const handleDelete = async (id, postedBy) => {
-    if ((user.role !== 'admin' || user.role !== 'agent') && postedBy !== user.id) {
-      console.log('Can\'t delete other user\'s listing');
-      return;
-    }
-
-    try {
-      await axios.delete(`/api/listings/${id}`);
-      fetchListings();
-      toast.success('Listing deleted successfully.');
-    } catch (error) {
-      console.error('Error deleting listing:', error);
-      toast.error('Error deleting listing.');
-    }
-  };
-
   return (
     <ScrollView style={styles.container}>
       <Header />
-      <Listing
-        listings={filteredListings}
-        handleDelete={handleDelete}
-        userId={user?.id}
+      <Listing 
+        limit={2}
       />
       <Categories />
       <About />
