@@ -29,11 +29,10 @@ const LoginScreen = () => {
         onChangeText={setPassword}
         secureTextEntry
       />
-      <Button title="Login" onPress={() => login(email, password)} />
+      <Button title="Login" onPress={() => login(email.toLowerCase(), password)} />
       <TouchableOpacity title="Register" onPress={handleNavigateToRegister} style={styles.registerButton}>
         <Text>Register</Text>
       </TouchableOpacity>
-      {/* <Button title='register' onPress={handleNavigateToRegister}/> */}
     </View>
   );
 };
