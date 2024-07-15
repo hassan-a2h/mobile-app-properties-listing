@@ -6,6 +6,7 @@ import ProfileScreen from '../screens/ProfileScreen';
 import CustomDrawerContent from '../navigation/CustomDrawer/CustomDrawer';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ListingForm from '../screens/ListingForm';
+import Listing from '../components/Listing/Listing';
 
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
@@ -22,8 +23,8 @@ function Sidebar(role) {
       <>
         <Drawer.Screen name="Home" component={HomeStack} />
         <Drawer.Screen name="Chat" component={ProfileScreen} />
-        <Drawer.Screen name="All Listings" component={ProfileScreen} />
-        <Drawer.Screen name="My Listings" component={ProfileScreen} />
+        <Drawer.Screen name="All Listings" component={Listing} initialParams={{ limit: 20 }} />
+        <Drawer.Screen name="My Listings" component={Listing} initialParams={{ fromUser: true, limit: 10 }} />
         <Drawer.Screen name="Create Listing" component={ListingForm} />
         <Drawer.Screen name="Add User" component={ProfileScreen} />
       </>
@@ -35,8 +36,8 @@ function Sidebar(role) {
       <>
         <Drawer.Screen name="Home" component={HomeStack} options={{ headerTitle: 'Home' }} />
         <Drawer.Screen name="Chat" component={ProfileScreen} />
-        <Drawer.Screen name="All Listings" component={ProfileScreen} />
-        <Drawer.Screen name="My Listings" component={ProfileScreen} />
+        <Drawer.Screen name="All Listings" component={Listing} initialParams={{ limit: 20 }} />
+        <Drawer.Screen name="My Listings" component={Listing} initialParams={{ fromUser: true, limit: 10 }} />
         <Drawer.Screen name="Create Listing" component={ListingForm} />
         <Drawer.Screen name="Socials" component={ProfileScreen} />
       </>
