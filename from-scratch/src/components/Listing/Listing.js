@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
@@ -6,9 +6,60 @@ import styles from './Listing.styles';
 import { useAuth } from '../../context/AuthContext';
 import propertyImg from '../../../assets/img/property-1.jpg';
 
-const Listing = ({ listings, handleDelete, userId }) => {
+const Listing = ({ route }) => {
+  let limit = 4;
+  let fromUser = false;
+
+  console.log('route:', route?.params);
+
+  if (route?.params) {
+    limit = route?.params?.limit;
+    fromUser = route?.params?.fromUser;
+  }
+
+  const defaultLimit = limit;
   const navigation = useNavigation();
   const { user } = useAuth();
+  const userId = user?.id;
+  const [listings, setListings] = useState([]);
+
+  useEffect(() => {
+    fetchListings();
+  }, []);
+
+  const fetchListings = async () => {
+    const requestParams = {};
+
+    requestParams.limit = defaultLimit;
+    if (fromUser) requestParams.agentId = userId;
+
+    console.log('requestParams:', requestParams);
+
+    try {
+      const response = await axios.get('/api/listings', {
+        params: requestParams,
+      });
+      setListings(response.data);
+    } catch (error) {
+      console.error('Error fetching listings:', error);
+      toast.error('Error fetching listings.');
+    }
+  };
+  const handleDelete = async (id, postedBy) => {
+    if ((user.role !== 'admin' || user.role !== 'agent') && postedBy !== user.id) {
+      console.log('Can\'t delete other user\'s listing');
+      return;
+    }
+
+    try {
+      await axios.delete(`/api/listings/${id}`);
+      fetchListings();
+      toast.success('Listing deleted successfully.');
+    } catch (error) {
+      console.error('Error deleting listing:', error);
+      toast.error('Error deleting listing.');
+    }
+  };
 
   const handleContact = async (listing) => {
     try {
