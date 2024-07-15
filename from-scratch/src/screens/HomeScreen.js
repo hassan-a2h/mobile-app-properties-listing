@@ -1,5 +1,5 @@
-import React, { useState, useEffect} from 'react';
-import { Button, StyleSheet, ScrollView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, ScrollView } from 'react-native';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
 import 'react-native-gesture-handler';
@@ -12,7 +12,6 @@ import ContactUs from '../components/ContactUs/ContactUs';
 import AboutTeam from '../components/AboutTeam/AboutTeam';
 import Testimonials from '../components/Testimonials/Testimonials';
 import Footer from '../components/Footer/Footer';
-import AboutDev from '../components/AboutDev/AboutDev';
 
 const HomeScreen = () => {
   const [listings, setListings] = useState([]);
@@ -51,7 +50,6 @@ const HomeScreen = () => {
 
   return (
     <ScrollView style={styles.container}>
-      <Button title="Logout" onPress={logout} />
       <Header />
       <Listing
         listings={filteredListings}
@@ -66,9 +64,8 @@ const HomeScreen = () => {
         <Testimonials />
       </GestureHandlerRootView>
       <Footer />
-      <AboutDev />
     </ScrollView>
-  );
+  );  
 };
 
 export default HomeScreen;
