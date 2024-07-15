@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView, Alert } from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import styles from './Listing.styles';
@@ -126,7 +126,7 @@ const Listing = ({ route }) => {
                 <>
                   <TouchableOpacity
                     style={styles.editButton}
-                    onPress={() => navigation.navigate('EditListing', { listingId: listing._id })}
+                    onPress={() => navigation.navigate('ListingForm', { id: listing._id })}
                   >
                     <Text style={styles.editButtonText}>Edit</Text>
                   </TouchableOpacity>

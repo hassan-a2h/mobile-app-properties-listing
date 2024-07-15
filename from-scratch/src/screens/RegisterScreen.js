@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, ActivityIndicator } from 'react-native';
 import { useAuth } from '../context/AuthContext';
+import Toast from 'react-native-toast-message';
+import { useNavigation } from '@react-navigation/native';
 
 const RegisterScreen = () => {
   const [name, setName] = useState('');
@@ -8,6 +10,7 @@ const RegisterScreen = () => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const { register } = useAuth();
+  const navigation = useNavigation();
 
   const validateEmail = (email) => {
     // Simple email validation using regex
@@ -27,22 +30,23 @@ const RegisterScreen = () => {
   const handleRegisterPress = async () => {
     // Validate inputs
     if (!validateName(name)) {
-      Alert.alert('Invalid Name', 'Name must be at least 2 characters long.');
+      Toast.show({ type: 'error', text1: 'Name must be at least 2 characters long.' });
       return;
     }
     if (!validateEmail(email)) {
-      Alert.alert('Invalid Email', 'Please enter a valid email address.');
+      Toast.show({ type: 'error', text1: 'Please enter a valid email address.' });
       return;
     }
     if (!validatePassword(password)) {
-      Alert.alert('Invalid Password', 'Password must be at least 6 characters long.');
+      Toast.show({ type: 'error', text1: 'Password must be at least 6 characters long.' });
       return;
     }
 
     // Proceed with registration
     setLoading(true);
     try {
-      await register(name, email, password);
+      await register(name, email.toLowerCase(), password);
+      navigation.popToTop();
     } catch (error) {
       console.error('Registration failed:', error);
     } finally {

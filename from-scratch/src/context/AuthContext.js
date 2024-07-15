@@ -1,8 +1,8 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import Toast from 'react-native-toast-message';
 
 const AuthContext = createContext();
 axios.defaults.baseURL = 'http://localhost:3000';
@@ -37,9 +37,9 @@ const AuthProvider = ({ children }) => {
       await AsyncStorage.setItem('role', data.role);
       await AsyncStorage.setItem('userId', data._id);
       setUser({ id: data._id, role: data.role });
-      Alert.alert('Login successful');
+      Toast.show({ type: 'success', text1: 'Login successful' });
     } catch (error) {
-      Alert.alert('Invalid credentials');
+      Toast.show({ type: 'error', text1: 'Invalid credentials' });
     }
   };
 
@@ -50,15 +50,15 @@ const AuthProvider = ({ children }) => {
     await AsyncStorage.removeItem('id');
     setUser(null);
     navigation.navigate('Login');
-    Alert.alert('Logged out successfully');
+    Toast.show({ type: 'success', text1: 'Logged out successfully' });
   };
 
   const register = async (name, email, password, role) => {
     try {
       await axios.post('/api/users/register', { name, email, password, role });
-      Alert.alert('Registration successful');
+      Toast.show({ type: 'success', text1: 'Registration successful' });
     } catch (error) {
-      Alert.alert('Registration failed');
+      Toast.show({ type: 'error', text1: 'Registration failed' });
       throw error;
     }
   };
