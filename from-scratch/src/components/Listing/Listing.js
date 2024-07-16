@@ -5,6 +5,7 @@ import axios from 'axios';
 import styles from './Listing.styles';
 import { useAuth } from '../../context/AuthContext';
 import propertyImg from '../../../assets/img/property-1.jpg';
+import Toast from 'react-native-toast-message';
 
 const Listing = ({ route }) => {
   let limit = 4;
@@ -42,7 +43,7 @@ const Listing = ({ route }) => {
       setListings(response.data);
     } catch (error) {
       console.error('Error fetching listings:', error);
-      toast.error('Error fetching listings.');
+      Toast.show({ type: 'error', text1: 'Error fetching listings.' });
     }
   };
   const handleDelete = async (id, postedBy) => {
@@ -54,10 +55,10 @@ const Listing = ({ route }) => {
     try {
       await axios.delete(`/api/listings/${id}`);
       fetchListings();
-      toast.success('Listing deleted successfully.');
+      Toast.show({ type: 'success', text1: 'Listing deleted successfully' });
     } catch (error) {
       console.error('Error deleting listing:', error);
-      toast.error('Error deleting listing.');
+      Toast.show({ type: 'error', text1: 'Error deleting listing.' });
     }
   };
 
@@ -126,7 +127,7 @@ const Listing = ({ route }) => {
                 <>
                   <TouchableOpacity
                     style={styles.editButton}
-                    onPress={() => navigation.navigate('ListingForm', { id: listing._id })}
+                    onPress={() => navigation.navigate('ListingForm', { screen: 'ListingFrom', id: listing._id })}
                   >
                     <Text style={styles.editButtonText}>Edit</Text>
                   </TouchableOpacity>
