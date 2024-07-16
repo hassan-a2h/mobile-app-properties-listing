@@ -7,7 +7,7 @@ import CustomDrawerContent from '../navigation/CustomDrawer/CustomDrawer';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ListingForm from '../screens/ListingForm';
 import Listing from '../components/Listing/Listing';
-import Chats from '../screens/Chats';
+import ChatNavigator from './CustomNavigators/ChatNavigator';
 
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
@@ -30,7 +30,7 @@ function Sidebar(role) {
     return (
       <>
         <Drawer.Screen name="Home" component={HomeStack} />
-        <Drawer.Screen name="Chat" component={Chats} />
+        <Drawer.Screen name="Chat" component={ChatNavigator} />
         <Drawer.Screen name="All Listings" component={ListingStackScreen} initialParams={{ limit: 20 }} />
         <Drawer.Screen name="My Listings" component={ListingStackScreen} initialParams={{ fromUser: true, limit: 10 }} />
         <Drawer.Screen name="Create Listing" component={ListingForm} />
@@ -43,7 +43,7 @@ function Sidebar(role) {
     return (
       <>
         <Drawer.Screen name="Home" component={HomeStack} options={{ headerTitle: 'Home' }} />
-        <Drawer.Screen name="Chat" component={Chats} />
+        <Drawer.Screen name="Chat" component={ChatNavigator} />
         <Drawer.Screen name="All Listings" component={Listing} initialParams={{ limit: 20 }} />
         <Drawer.Screen name="My Listings" component={Listing} initialParams={{ fromUser: true, limit: 10 }} />
         <Drawer.Screen name="Create Listing" component={ListingForm} />
@@ -56,7 +56,7 @@ function Sidebar(role) {
     <>
       <Drawer.Screen name="Home" component={HomeStack} />
       <Drawer.Screen name="Listings" component={ProfileScreen} />
-      <Drawer.Screen name="Chat" component={Chats} />
+      <Drawer.Screen name="Chat" component={ChatNavigator} />
     </>
   );
 }
