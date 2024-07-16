@@ -61,7 +61,7 @@ function Chats() {
       { chatsError && <Text>{chatsError}</Text> }
 
       { chats && chats.map((chat) => (
-        <TouchableOpacity key={chat._id} style={styles.chat} onPress={() => navigation.navigate('ChatMessages', { chatId: chat._id })}>
+        <TouchableOpacity key={chat._id} style={styles.chat} onPress={() => navigation.navigate('ChatMessages', { chatId: chat._id, userId: userId })}>
           <Text style={{ fontWeight: 'bold', display: 'block' }}>{chat.recipientName}</Text>
           <Text>{chat.lastMessage.message}</Text>
         </TouchableOpacity>
