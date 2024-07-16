@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { Text, ScrollView, View, StyleSheet } from "react-native";
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNavigation } from '@react-navigation/native';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 
 
 function Chats() {
@@ -9,6 +11,8 @@ function Chats() {
   const [chats, setChats] = useState(null);
   const [loadingChats, setLoadingChats] = useState(true);
   const [chatsError, setChatsError] = useState(null);
+
+  const navigation = useNavigation();
 
   //  for getting current user's id
   useEffect(() => {
@@ -23,8 +27,10 @@ function Chats() {
   // for fetching chats of current user from backend
   useEffect(() => {
     async function getChats() {
+      if (!userId) return;
+
       setLoadingChats(true);
-      console.log('userId:', userId);
+      console.log('logged in userId:', userId);
       try {
         const response = await axios.get(`/api/c/chats/${userId}`);
         const chatsWithNames = await Promise.all(
@@ -36,6 +42,7 @@ function Chats() {
         );
         setChats(chatsWithNames);
         setLoadingChats(false);
+        setChatsError(false);
         console.log('chats received from server:', response.data);
       } catch (error) {
         console.error('Error fetching chats:', error);
@@ -45,7 +52,7 @@ function Chats() {
     }
     
     getChats();
-  },[]);
+  }, [userId]);
 
   return (
     <ScrollView style={styles.container}>
@@ -54,10 +61,10 @@ function Chats() {
       { chatsError && <Text>{chatsError}</Text> }
 
       { chats && chats.map((chat) => (
-        <View key={chat._id} style={styles.chat}>
+        <TouchableOpacity key={chat._id} style={styles.chat} onPress={() => navigation.navigate('ChatMessages', { chatId: chat._id })}>
           <Text style={{ fontWeight: 'bold', display: 'block' }}>{chat.recipientName}</Text>
           <Text>{chat.lastMessage.message}</Text>
-        </View>
+        </TouchableOpacity>
       )) }
     </ScrollView>
   );
