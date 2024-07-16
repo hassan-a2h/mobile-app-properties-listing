@@ -9,7 +9,7 @@ export default function App() {
       <AuthProvider>
         <MainNavigator />
       </AuthProvider>
-      <Toast />
+      <Toast position='bottom' />
     </NavigationContainer>
   );
 }
