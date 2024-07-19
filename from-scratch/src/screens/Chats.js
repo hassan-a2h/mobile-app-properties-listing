@@ -4,7 +4,8 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-
+import { socket } from '../../App';
+import ChatNavigator from '../navigation/CustomNavigators/ChatNavigator';
 
 function Chats() {
   const [ userId, setUserId ] = useState(null);
@@ -22,6 +23,16 @@ function Chats() {
     }
     
     getId();
+
+    // for socket connection
+    socket.on('connect', () => {
+      console.log('socket connected');
+    });
+
+    return () => {
+      socket.off('connect');
+      socket.disconnect();
+    }
   }, []);
 
   // for fetching chats of current user from backend
