@@ -8,7 +8,11 @@ function ChatNavigator() {
   return (
     <Navigator initialRouteName="Chats" screenOptions={{ headerShown: true }} >
       <Screen name='Chats' component={Chats} />
-      <Screen name='ChatMessages' component={ChatMessages} />
+      <Screen 
+        name='ChatMessages' 
+        component={ChatMessages} 
+        options={({ route }) => ({ title: route.params.name })}
+      />
     </Navigator>
   );
 }

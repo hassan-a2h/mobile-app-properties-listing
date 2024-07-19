@@ -37,7 +37,7 @@ function Sidebar(role) {
         <Drawer.Screen name="Add User" component={ProfileScreen} />
       </>
     );
-  } 
+  }
 
   if (role === 'agent') {
     return (
