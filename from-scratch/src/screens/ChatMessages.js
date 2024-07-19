@@ -4,6 +4,7 @@ import axios from 'axios';
 import { socket } from '../../App';
 import MessageList from '../components/Chat/MessageList';
 import MessageForm from '../components/Chat/MessageForm';
+import handleReceiveMessage from '../utils/handleReceiveMessage';
 
 function ChatMessages({ route }) {
   const { currentChat, userId } = route.params;
@@ -30,17 +31,13 @@ function ChatMessages({ route }) {
     getMessages();
 
     // Socket connection
-    socket.on('receiveMessage', handleReceiveMessage);
+    socket.on('receiveMessage', (data) => handleReceiveMessage(socket, currentChat, userId, setMessages, data));
 
     return () => {
-      socket.off('receiveMessage', handleReceiveMessage);
+      socket.off('receiveMessage', (data) => handleReceiveMessage(socket, currentChat, userId, setMessages, data));
       socket.disconnect();
     };
   }, []);
-
-  useEffect(() => {
-    console.log('messages in state:', messages);
-  }, [messages]);
 
   return (
     <View style={styles.container}>
