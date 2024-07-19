@@ -1,0 +1,44 @@
+import { View, TextInput, TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { useState } from 'react';
+import sendMessage from '../../utils/sendMessage';
+
+function MessageForm({ socket, userId, currentChat, setMessages }) {
+  const [ userMessage, setUserMessage ] = useState('');
+
+  return (
+    <View style={styles.inputContainer}>
+      <TextInput
+        style={styles.input}
+        value={userMessage}
+        onChangeText={setUserMessage}
+        placeholder="Type a message..."
+      />
+      <TouchableOpacity onPress={() => sendMessage(socket, userId, currentChat, userMessage, setMessages, setUserMessage)} style={styles.sendButton}>
+        <Text>Send</Text>
+      </TouchableOpacity>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  inputContainer: {
+    flexDirection: 'row',
+    marginBottom: 25,
+    padding: 10,
+    borderTopWidth: 1,
+    borderTopColor: '#DDDDDD',
+  },
+  input: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    padding: 10,
+  },
+  sendButton: {
+    justifyContent: 'center',
+    padding: 10,
+  },
+});
+
+export default MessageForm;
