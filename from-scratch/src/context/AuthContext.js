@@ -3,9 +3,10 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import Toast from 'react-native-toast-message';
+import getBackendAddress from '../utils/getBackendAddress';
 
 const AuthContext = createContext();
-axios.defaults.baseURL = 'http://localhost:3000';
+axios.defaults.baseURL = getBackendAddress();
 
 export const useAuth = () => useContext(AuthContext);
 

@@ -5,9 +5,7 @@ function getBackendAddress() {
     return "http://localhost:3000";
   } 
   
-  if (Platform.OS === 'android') {
-    return "http://10.0.2.2:3000";
-  }
+  return "http://10.0.2.2:3000";
 }
 
 export default getBackendAddress;
