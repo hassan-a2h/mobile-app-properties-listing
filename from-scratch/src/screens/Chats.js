@@ -17,8 +17,10 @@ function Chats() {
   const [chatsError, setChatsError] = useState(null);
   const { unreadMessages } = useUnreadMessages();
   const { unreadChats } = unreadMessages;
+  const { chatLastMessage } = unreadMessages;
 
   console.log('unread Messages:', unreadMessages);
+  console.log('Chats component, last Message: ', chatLastMessage);
 
   const navigation = useNavigation();
 
@@ -75,7 +77,8 @@ function Chats() {
   }, [userId]);
 
   return (
-    <ScrollView style={styles.container}>
+    <View style={styles.topContainer}>
+      <ScrollView style={styles.container}>
       <CustomTopbar title='Chats' value={unreadMessages} />
       { loadingChats && <Text>Loading chats...</Text> }
       { chatsError && <Text>{chatsError}</Text> }
@@ -84,17 +87,22 @@ function Chats() {
         <TouchableOpacity key={chat._id} style={styles.chat} onPress={() => navigation.navigate('ChatMessages', { currentChat: chat, userId: userId, name: chat.recipientName })}>
           <View>
             <Text style={{ fontWeight: 'bold', display: 'block' }}>{chat.recipientName}</Text>
-            <Text>{chat.lastMessage.message}</Text>
+            { chatLastMessage && chatLastMessage[chat._id] ? <Text>{chatLastMessage[chat._id]}</Text> : <Text>{chat.lastMessage.message}</Text> }
           </View>
           
-          { unreadChats[chat._id] && <View style={styles.value}><Text style={styles.messageNotification}>{unreadChats[chat._id]}</Text></View> }
+          { unreadChats && unreadChats[chat._id] && <View style={styles.value}><Text style={styles.messageNotification}>{unreadChats[chat._id]}</Text></View> }
         </TouchableOpacity>
       )) }
     </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  topContainer: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
   container: {
     marginTop: 10,
     padding: 10,
