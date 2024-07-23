@@ -9,8 +9,8 @@ async function handleReceiveMessage(socket, currentChat, userId, setMessages, da
           id: data._id
         }
       );
+      socket.emit('messagesRead', { userId: userId });
     }
-    socket.emit('messagesRead', { userId: userId });
   }
 }
 
