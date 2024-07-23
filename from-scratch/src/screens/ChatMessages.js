@@ -1,16 +1,19 @@
 import { useState, useEffect } from 'react';
 import { Text, ScrollView, View, StyleSheet } from 'react-native';
 import axios from 'axios';
-import { socket } from '../../App';
 import MessageList from '../components/Chat/MessageList';
 import MessageForm from '../components/Chat/MessageForm';
 import handleReceiveMessage from '../utils/handleReceiveMessage';
+import { getSocket } from '../sockets/socketService';
 
 function ChatMessages({ route }) {
   const { currentChat, userId } = route.params;
   const [ messages, setMessages ] = useState([]);
+  const socket = getSocket();
 
   useEffect(() => {
+    if (!socket) return;
+
     async function getMessages(lastMessageDate = null) {
       try {
         const response = await axios.get(`/api/c/chats/${currentChat._id}/messages`, {
@@ -21,8 +24,8 @@ function ChatMessages({ route }) {
           },
         });
         const newMessages = response.data;
-        console.log('messages received:', newMessages);
         setMessages((prevMessages) => [...newMessages, ...prevMessages]);
+        socket.emit('messagesRead', { userId });
       } catch (error) {
         console.log('Error fetching messages:', error);
       }
@@ -31,11 +34,11 @@ function ChatMessages({ route }) {
     getMessages();
 
     // Socket connection
-    socket.on('receiveMessage', (data) => handleReceiveMessage(socket, currentChat, userId, setMessages, data));
+    const appendMessage = (data) => handleReceiveMessage(socket, currentChat, userId, setMessages, data);
+    socket.on('receiveMessage', appendMessage);
 
     return () => {
-      socket.off('receiveMessage', (data) => handleReceiveMessage(socket, currentChat, userId, setMessages, data));
-      socket.disconnect();
+      socket.off('receiveMessage', appendMessage);
     };
   }, []);
 
