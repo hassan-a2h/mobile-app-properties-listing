@@ -7,13 +7,14 @@ import CustomDrawerTopbar from '../components/CustomDrawerTopbar';
 import Sidebar from '../utils/sidebarOptions';
 import fetchUnreadMessages from '../utils/fetchUnreadMessages';
 import { useAuth } from '../context/AuthContext';
+import { UnreadMessagesProvider, useUnreadMessages } from '../context/UnreadMessagesContext';
 import { initSocket, getSocket } from '../sockets/socketService';
 
 const Drawer = createDrawerNavigator();
 
 const AppStack = () => {
   const { user } = useAuth();
-  const [unreadMessages, setUnreadMessages] = useState(0);
+  const { unreadMessages, setUnreadMessages } = useUnreadMessages();
 
   const updateUnreadMessages = useCallback(async () => {
     console.log('!!!! Updating unread messages...');
@@ -24,7 +25,7 @@ const AppStack = () => {
     } catch (error) {
       console.error('Error updating unread messages:', error);
     }
-  }, [user]);
+  }, [user, setUnreadMessages]);
 
   useEffect(() => {
     if (user) {
@@ -54,9 +55,15 @@ const AppStack = () => {
         header: () => <CustomDrawerTopbar title={route.name} value={unreadMessages?.unreadCount} />
       })}
     >
-      {Sidebar(user?.role)}
+      {Sidebar(user?.role, unreadMessages)}
     </Drawer.Navigator>
   );
 };
 
-export default AppStack;
+const AppWrapper = () => (
+  <UnreadMessagesProvider>
+    <AppStack />
+  </UnreadMessagesProvider>
+);
+
+export default AppWrapper;
