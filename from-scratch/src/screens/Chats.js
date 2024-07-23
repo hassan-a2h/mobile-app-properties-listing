@@ -4,8 +4,8 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { socket } from '../../App';
-import ChatNavigator from '../navigation/CustomNavigators/ChatNavigator';
+import { getSocket } from '../sockets/socketService';
+import CustomTopbar from '../components/CustomDrawerTopbar';
 
 function Chats() {
   const [ userId, setUserId ] = useState(null);
@@ -17,6 +17,9 @@ function Chats() {
 
   //  for getting current user's id
   useEffect(() => {
+    const socket = getSocket();
+    if (!socket) return;
+    
     async function getId() {
       const id = await AsyncStorage.getItem('userId');
       setUserId(prevId => id);
@@ -31,7 +34,6 @@ function Chats() {
 
     return () => {
       socket.off('connect');
-      socket.disconnect();
     }
   }, []);
 
@@ -67,7 +69,7 @@ function Chats() {
 
   return (
     <ScrollView style={styles.container}>
-      <Text style={styles.title}>Chats</Text>
+      <CustomTopbar title='Chats' value={5} />
       { loadingChats && <Text>Loading chats...</Text> }
       { chatsError && <Text>{chatsError}</Text> }
 
@@ -85,6 +87,7 @@ const styles = StyleSheet.create({
   container: {
     marginTop: 10,
     padding: 10,
+    backgroundColor: 'white',
   },
   title: {
     fontSize: 24,
