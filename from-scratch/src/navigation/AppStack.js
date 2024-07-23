@@ -54,7 +54,7 @@ const AppStack = () => {
         header: () => <CustomDrawerTopbar title={route.name} value={unreadMessages?.unreadCount} />
       })}
     >
-      {Sidebar(user.role)}
+      {Sidebar(user?.role)}
     </Drawer.Navigator>
   );
 };
