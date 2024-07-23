@@ -48,7 +48,7 @@ const AppStack = () => {
 
   return (
     <Drawer.Navigator
-      drawerContent={(props) => <CustomDrawerContent {...props} />}
+      drawerContent={(props) => <CustomDrawerContent unreadMessagesCount={unreadMessages?.unreadCount} {...props} />}
       screenOptions={({ route }) => ({ 
         headerShown: true,
         header: () => <CustomDrawerTopbar title={route.name} value={unreadMessages?.unreadCount} />

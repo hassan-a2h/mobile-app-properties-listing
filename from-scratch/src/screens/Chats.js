@@ -69,7 +69,7 @@ function Chats() {
 
   return (
     <ScrollView style={styles.container}>
-      <CustomTopbar title='Chats' value={5} />
+      <CustomTopbar title='Chats' value={0} />
       { loadingChats && <Text>Loading chats...</Text> }
       { chatsError && <Text>{chatsError}</Text> }
 
