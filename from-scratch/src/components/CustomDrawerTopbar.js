@@ -14,7 +14,8 @@ const CustomDrawerTopbar = ({ title, value }) => {
           <TouchableOpacity onPress={() => navigation.openDrawer()}>
             <Ionicons name="menu" size={24} color="black" />
           </TouchableOpacity>
-          <Text style={styles.value}>{value}</Text>
+            {/* { value > 0 && <Text style={styles.value}>{value}</Text> } */}
+            { value > 0 && <View style={styles.value}><Text style={styles.messageNotification}>{value > 9 ? '9+' : value}</Text></View> }
         </View>
         <Text style={styles.title}>{title}</Text>
       </View>
@@ -40,7 +41,18 @@ const styles = StyleSheet.create({
   value: {
     marginLeft: 10,
     fontSize: 16,
-    color: 'gray',
+    color: '#ffffff',
+    // borderWidth: 1,
+    paddingRight: 8,
+    paddingLeft: 8,
+    paddingTop: 4,
+    paddingBottom: 4,
+    borderRadius: 12,
+    // borderColor: 'gray',
+    backgroundColor: '#00BE8E',
+  },
+  messageNotification: {
+    color: '#ffffff',
   },
   leftIconContainer: {
     flexDirection: 'row',
