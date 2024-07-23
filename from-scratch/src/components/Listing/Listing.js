@@ -68,10 +68,10 @@ const Listing = ({ route }) => {
         userId,
         agentId: listing.postedBy,
         listingId: listing._id,
-        propertyTitle: listing.title,
+        propertyTitle: listing._id,
       });
       const chat = response.data;
-      navigation.navigate('Chat', { userId, chatFromListing: chat });
+      navigation.navigate('Chats', { userId, chatFromListing: chat });
     } catch (error) {
       console.error('Error creating or fetching chat:', error);
     }
@@ -141,11 +141,11 @@ const Listing = ({ route }) => {
               )}
               {listing.postedBy !== userId && (
                 <TouchableOpacity
-                  style={styles.Button}
-                  onPress={() => handleContact(listing)}
-                >
-                  <Text style={styles.contactButtonText}>Contact</Text>
-                </TouchableOpacity>
+                style={styles.deleteButton}
+                onPress={() => handleContact(listing)}
+              >
+                <Text style={styles.deleteButtonText}>Contact</Text>
+              </TouchableOpacity>
               )}
             </View>
           </View>
