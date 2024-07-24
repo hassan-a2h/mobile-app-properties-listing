@@ -18,7 +18,7 @@ const HomeScreen = () => {
     <ScrollView style={styles.container}>
       <Header />
       <Listing 
-        limit={2}
+        initialLimit={4}
       />
       <Categories />
       <About />
