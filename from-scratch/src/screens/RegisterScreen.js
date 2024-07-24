@@ -27,17 +27,14 @@ const Register = () => {
   }, [user, navigation]);
 
   const validateEmail = (email) => {
-    // Simple email validation using regex
     return /\S+@\S+\.\S+/.test(email);
   };
 
   const validatePassword = (password) => {
-    // Validate minimum password length
     return password.length >= 8;
   };
 
   const validateName = (name) => {
-    // Validate minimum name length
     return name.length >= 3;
   };
 
@@ -80,7 +77,7 @@ const Register = () => {
 
         return;
       }
-      await register(name, email, password);
+      await register(name, email.toLowerCase(), password);
       navigation.navigate('Login', { state: { fromRegister: true } });
     } catch (error) {
       console.log('Request failed, full error - ' + error);
@@ -133,7 +130,7 @@ const Register = () => {
             </Picker>
           </View>
         )}
-        <Button title="Register" onPress={handleSubmit} />
+        <Button title="Register" color="#00B98E" onPress={handleSubmit} />
         {role !== 'admin' && (
           <Text style={styles.loginText}>
             Have an account?{' '}
@@ -168,6 +165,8 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
+    textAlign: 'center',
+    color: '#00B98E',
   },
   inputContainer: {
     marginBottom: 15,
@@ -178,13 +177,14 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 4,
     fontSize: 16,
+    backgroundColor: '#fff',
   },
   loginText: {
     marginTop: 20,
     textAlign: 'center',
   },
   link: {
-    color: 'blue',
+    color: '#00B98E',
     fontWeight: 'bold',
   },
 });

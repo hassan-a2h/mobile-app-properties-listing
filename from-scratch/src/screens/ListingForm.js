@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import axios from 'axios';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -86,8 +86,7 @@ const ListingForm = ({ editing }) => {
         }}
       >
         {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
-          <View>
-            <Text style={styles.heading}>{editing ? 'Edit Listing' : 'Add Listing'}</Text>
+          <View style={styles.form}>
             <TextInput
               style={styles.input}
               onChangeText={handleChange('title')}
@@ -162,7 +161,9 @@ const ListingForm = ({ editing }) => {
               <Picker.Item label="Garage" value="garage" />
             </Picker>
             {errors.category && touched.category ? <Text style={styles.error}>{errors.category}</Text> : null}
-            <Button onPress={handleSubmit} title={editing ? 'Update Listing' : 'Add Listing'} />
+            <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
+              <Text style={styles.submitButtonText}>{editing ? 'Update Listing' : 'Add Listing'}</Text>
+            </TouchableOpacity>
           </View>
         )}
       </Formik>
@@ -174,28 +175,59 @@ const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
     padding: 20,
+    backgroundColor: '#f8f8f8',
+  },
+  form: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 1,
   },
   heading: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
+    textAlign: 'center',
+    color: '#00B98E',
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: '#ddd',
     padding: 10,
-    borderRadius: 5,
+    borderRadius: 4,
+    fontSize: 16,
+    backgroundColor: '#fff',
     marginBottom: 10,
   },
   textArea: {
     height: 100,
   },
   picker: {
-    // height: 100,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    padding: 10,
+    borderRadius: 4,
+    backgroundColor: '#fff',
+    marginBottom: 10,
   },
   error: {
     color: 'red',
     marginBottom: 10,
+  },
+  submitButton: {
+    backgroundColor: '#00B98E',
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+    marginTop: 16,
+  },
+  submitButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
   },
 });
 
