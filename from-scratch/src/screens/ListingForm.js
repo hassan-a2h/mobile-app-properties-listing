@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
+import { View, Text, TextInput, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import axios from 'axios';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import Toast from 'react-native-toast-message';
 import { useAuth } from '../context/AuthContext';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
+import DropDownPicker from 'react-native-dropdown-picker';
 
 // Define Yup schema
 const ListingSchema = Yup.object().shape({
@@ -22,17 +22,37 @@ const ListingForm = () => {
   const { user } = useAuth();
   const navigation = useNavigation();
   const route = useRoute();
+  const { id, editing } = route.params || {};
+
+  const [openStatus, setOpenStatus] = useState(false);
+  const [openCategory, setOpenCategory] = useState(false);
+
   const [initialValues, setInitialValues] = useState({
     title: '',
     description: '',
     price: '',
     location: '',
     images: '',
-    status: '',
+    status: 'available', // Set a default value
     postedBy: user?.id,
     category: 'home',
   });
-  const { id, editing } = route.params || {};
+
+  const statusItems = [
+    { label: 'Available', value: 'available' },
+    { label: 'Sold', value: 'sold' },
+  ];
+
+  const categoryItems = [
+    { label: 'Home', value: 'home' },
+    { label: 'Villa', value: 'villa' },
+    { label: 'Apartment', value: 'apartment' },
+    { label: 'Building', value: 'building' },
+    { label: 'Office', value: 'office' },
+    { label: 'Townhouse', value: 'townhouse' },
+    { label: 'Shop', value: 'shop' },
+    { label: 'Garage', value: 'garage' },
+  ];
 
   useEffect(() => {
     if (editing && id) {
@@ -70,7 +90,7 @@ const ListingForm = () => {
               await axios.post('/api/listings', values);
               Toast.show({ type: 'success', text1: 'Listing created successfully.' });
             }
-            navigation.navigate('My Listings');
+            navigation.navigate('My Listings', { userId: user.id, fromUser: true });
           } catch (error) {
             console.error('Error saving listing:', error);
             const errors = error?.response?.data?.errors;
@@ -79,87 +99,86 @@ const ListingForm = () => {
               Object.values(errors).forEach((errorMessage) => {
                 Toast.show({ type: 'error', text1: errorMessage });
               });
+            } else {
+              Toast.show({ type: 'error', text1: 'Error saving listing.' });
             }
-            Toast.show({ type: 'error', text1: 'Error saving listing.' });
           }
         }}
       >
-        {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
+        {({ handleChange, handleBlur, handleSubmit, setFieldValue, values, errors, touched }) => (
           <View style={styles.form}>
+            <Text style={styles.label}>Title</Text>
             <TextInput
               style={styles.input}
               onChangeText={handleChange('title')}
               onBlur={handleBlur('title')}
               value={values.title}
-              placeholder="Title"
-              minLength={8}
-              maxLength={64}
-              required
+              placeholder="Enter title"
             />
             {errors.title && touched.title ? <Text style={styles.error}>{errors.title}</Text> : null}
+
+            <Text style={styles.label}>Description</Text>
             <TextInput
               style={[styles.input, styles.textArea]}
               onChangeText={handleChange('description')}
               onBlur={handleBlur('description')}
               value={values.description}
-              placeholder="Description & Contact details"
-              minLength={4}
-              maxLength={512}
-              required
+              placeholder="Enter description & contact details"
               multiline
             />
             {errors.description && touched.description ? <Text style={styles.error}>{errors.description}</Text> : null}
+
+            <Text style={styles.label}>Price</Text>
             <TextInput
               style={styles.input}
               onChangeText={handleChange('price')}
               onBlur={handleBlur('price')}
-              value={values.price}
-              placeholder="Price"
+              value={values.price.toString()}
+              placeholder="Enter price"
               keyboardType="numeric"
-              min={1000}
-              max={50000000}
-              required
             />
             {errors.price && touched.price ? <Text style={styles.error}>{errors.price}</Text> : null}
+
+            <Text style={styles.label}>Location</Text>
             <TextInput
               style={styles.input}
               onChangeText={handleChange('location')}
               onBlur={handleBlur('location')}
               value={values.location}
-              placeholder="Location"
-              minLength={8}
-              maxLength={128}
-              required
+              placeholder="Enter location"
             />
             {errors.location && touched.location ? <Text style={styles.error}>{errors.location}</Text> : null}
-            <Picker
-              selectedValue={values.status}
-              style={[styles.input, styles.picker]}
-              onValueChange={handleChange('status')}
-              required
-            >
-              <Picker.Item label="Select Status" value="" />
-              <Picker.Item label="Available" value="available" />
-              <Picker.Item label="Sold" value="sold" />
-            </Picker>
+
+            <Text style={styles.label}>Status</Text>
+            <DropDownPicker
+              open={openStatus}
+              value={values.status}
+              items={statusItems}
+              setOpen={setOpenStatus}
+              setValue={(val) => setFieldValue('status', val())}
+              style={styles.dropdown}
+              dropDownContainerStyle={styles.dropdownContainer}
+              placeholder="Select Status"
+              zIndex={3000}
+              zIndexInverse={1000}
+            />
             {errors.status && touched.status ? <Text style={styles.error}>{errors.status}</Text> : null}
-            <Picker
-              selectedValue={values.category}
-              style={styles.input}
-              onValueChange={handleChange('category')}
-              mode='dropdown'
-              required
-            >
-              <Picker.Item label="Home" value="home" />
-              <Picker.Item label="Villa" value="villa" />
-              <Picker.Item label="Apartment" value="apartment" />
-              <Picker.Item label="Building" value="building" />
-              <Picker.Item label="Office" value="office" />
-              <Picker.Item label="Townhouse" value="townhouse" />
-              <Picker.Item label="Shop" value="shop" />
-              <Picker.Item label="Garage" value="garage" />
-            </Picker>
+
+            <Text style={styles.label}>Category</Text>
+            <DropDownPicker
+              open={openCategory}
+              value={values.category}
+              items={categoryItems}
+              setOpen={setOpenCategory}
+              setValue={(val) => setFieldValue('category', val())}
+              style={styles.dropdown}
+              dropDownContainerStyle={styles.dropdownContainer}
+              placeholder="Select Category"
+              zIndex={2000}
+              zIndexInverse={2000}
+            />
             {errors.category && touched.category ? <Text style={styles.error}>{errors.category}</Text> : null}
+
             <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
               <Text style={styles.submitButtonText}>{editing ? 'Update Listing' : 'Add Listing'}</Text>
             </TouchableOpacity>
@@ -179,54 +198,56 @@ const styles = StyleSheet.create({
   form: {
     backgroundColor: 'white',
     padding: 20,
-    borderRadius: 8,
+    borderRadius: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
-    elevation: 1,
+    elevation: 3,
   },
-  heading: {
-    fontSize: 24,
+  label: {
+    fontSize: 16,
     fontWeight: 'bold',
-    marginBottom: 20,
-    textAlign: 'center',
-    color: '#00B98E',
+    marginBottom: 5,
+    color: '#333',
   },
   input: {
     borderWidth: 1,
     borderColor: '#ddd',
-    padding: 10,
-    borderRadius: 4,
+    padding: 12,
+    borderRadius: 8,
     fontSize: 16,
     backgroundColor: '#fff',
-    marginBottom: 10,
+    marginBottom: 15,
   },
   textArea: {
-    height: 100,
+    height: 120,
   },
-  picker: {
-    borderWidth: 1,
+  dropdown: {
     borderColor: '#ddd',
-    padding: 10,
-    borderRadius: 4,
-    backgroundColor: '#fff',
-    marginBottom: 10,
+    borderRadius: 8,
+    marginBottom: 15,
+  },
+  dropdownContainer: {
+    borderColor: '#ddd',
+    borderRadius: 8,
   },
   error: {
-    color: 'red',
+    color: '#ff3b30',
+    fontSize: 14,
     marginBottom: 10,
   },
   submitButton: {
     backgroundColor: '#00B98E',
-    padding: 10,
-    borderRadius: 5,
+    padding: 15,
+    borderRadius: 8,
     alignItems: 'center',
-    marginTop: 16,
+    marginTop: 20,
   },
   submitButtonText: {
     color: '#fff',
     fontWeight: 'bold',
+    fontSize: 16,
   },
 });
 
