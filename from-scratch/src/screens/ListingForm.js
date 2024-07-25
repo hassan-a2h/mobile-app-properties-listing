@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import axios from 'axios';
@@ -18,13 +18,11 @@ const ListingSchema = Yup.object().shape({
   category: Yup.string().required('Category is required'),
 });
 
-const ListingForm = ({ editing }) => {
+const ListingForm = () => {
   const { user } = useAuth();
   const navigation = useNavigation();
   const route = useRoute();
-  const { id } = route.params || {};
-
-  const initialListing = {
+  const [initialValues, setInitialValues] = useState({
     title: '',
     description: '',
     price: '',
@@ -33,7 +31,8 @@ const ListingForm = ({ editing }) => {
     status: '',
     postedBy: user?.id,
     category: 'home',
-  };
+  });
+  const { id, editing } = route.params || {};
 
   useEffect(() => {
     if (editing && id) {
@@ -49,7 +48,7 @@ const ListingForm = ({ editing }) => {
         navigation.navigate('Home');
         return;
       }
-      setListing(response.data);
+      setInitialValues(response.data);
     } catch (error) {
       console.error('Error fetching listing:', error);
       Toast.show({ type: 'error', text1: 'Error fetching listing.' });
@@ -59,19 +58,19 @@ const ListingForm = ({ editing }) => {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Formik
-        initialValues={initialListing}
+        initialValues={initialValues}
+        enableReinitialize={true}
         validationSchema={ListingSchema}
         onSubmit={async (values, { setErrors }) => {
           try {
             if (editing) {
               await axios.put(`/api/listings/${id}`, values);
               Toast.show({ type: 'success', text1: 'Listing updated successfully.' });
-              navigation.navigate('ListingsAgent', { user });
             } else {
               await axios.post('/api/listings', values);
               Toast.show({ type: 'success', text1: 'Listing created successfully.' });
             }
-            navigation.navigate('Home');
+            navigation.navigate('My Listings');
           } catch (error) {
             console.error('Error saving listing:', error);
             const errors = error?.response?.data?.errors;
