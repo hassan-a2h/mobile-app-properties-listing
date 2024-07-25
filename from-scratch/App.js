@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './src/context/AuthContext';
 import MainNavigator from './src/navigation/MainNavigator';
 import Toast from 'react-native-toast-message';
 import { initSocket, disconnectSocket } from './src/sockets/socketService';
+import ErrorBoundary from './src/screens/ErrorBoundary';
 
 const AppContent = () => {
   const { user } = useAuth();
@@ -24,7 +25,9 @@ export default function App() {
   return (
     <NavigationContainer>
       <AuthProvider>
-        <AppContent />
+        <ErrorBoundary>
+          <AppContent />
+        </ErrorBoundary>
       </AuthProvider>
       <Toast position='bottom' />
     </NavigationContainer>
