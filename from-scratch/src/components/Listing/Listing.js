@@ -8,7 +8,6 @@ import { useChat } from '../../context/ChatContext';
 import propertyImg from '../../../assets/img/property-1.jpg';
 import Toast from 'react-native-toast-message';
 import { Ionicons } from '@expo/vector-icons';
-import ListingNavigator from '../../navigation/CustomNavigators/ListingNavigator';
 
 const Listing = ({ route, initialLimit = 4 }) => {
   const [listings, setListings] = useState([]);

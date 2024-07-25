@@ -9,6 +9,7 @@ import fetchUnreadMessages from '../utils/fetchUnreadMessages';
 import { useAuth } from '../context/AuthContext';
 import { UnreadMessagesProvider, useUnreadMessages } from '../context/UnreadMessagesContext';
 import { initSocket, getSocket } from '../sockets/socketService';
+import { ChatProvider } from '../context/ChatContext';
 
 const Drawer = createDrawerNavigator();
 
@@ -62,7 +63,9 @@ const AppStack = () => {
 
 const AppWrapper = () => (
   <UnreadMessagesProvider>
-    <AppStack />
+    <ChatProvider>
+      <AppStack />
+    </ChatProvider>
   </UnreadMessagesProvider>
 );
 
