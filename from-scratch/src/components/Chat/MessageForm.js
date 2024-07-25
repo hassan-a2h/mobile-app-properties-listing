@@ -13,7 +13,7 @@ function MessageForm({ socket, userId, currentChat, setMessages }) {
         onChangeText={setUserMessage}
         placeholder="Type a message..."
       />
-      <TouchableOpacity onPress={() => sendMessage(socket, userId, currentChat, userMessage, setMessages, setUserMessage)} style={styles.sendButton}>
+      <TouchableOpacity disabled={ userMessage.trim() === '' } onPress={() => sendMessage(socket, userId, currentChat, userMessage, setMessages, setUserMessage)} style={styles.sendButton}>
         <Text>Send</Text>
       </TouchableOpacity>
     </View>
