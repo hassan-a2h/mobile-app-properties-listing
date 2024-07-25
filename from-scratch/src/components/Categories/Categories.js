@@ -15,7 +15,7 @@ const Categories = () => {
   const navigation = useNavigation();
 
   function handleClick(category) {
-    navigation.navigate('Listings', { category });
+    navigation.navigate('All Listings', { category: category, name: `${category.charAt(0).toUpperCase()}${category.slice(1)}` });
   }
 
   return (

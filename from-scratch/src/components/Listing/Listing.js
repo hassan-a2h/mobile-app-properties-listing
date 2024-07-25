@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useLayoutEffect } from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet, FlatList } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
@@ -19,6 +19,19 @@ const Listing = ({ route, initialLimit = 4 }) => {
   const { user } = useAuth();
   const { setNewChat } = useChat();
   const userId = user?.id;
+
+  useEffect(() => {
+    setListings([]);
+    setLastListingDate(null);
+    setHasMore(true);
+    fetchListings();
+  }, [route?.params]);
+
+  useLayoutEffect(() => {
+    if (route?.params?.name) {
+      navigation.setOptions({ title: route.params.name });
+    }
+  }, [navigation, route?.params?.name]);
 
   const handleEdit = (id) => {
     navigation.navigate('Create Listing', { id, editing: true });
@@ -53,13 +66,6 @@ const Listing = ({ route, initialLimit = 4 }) => {
       setIsLoading(false);
     }
   }, [initialLimit, route?.params, userId, isLoading, hasMore]);
-
-  useEffect(() => {
-    setListings([]);
-    setLastListingDate(null);
-    setHasMore(true);
-    fetchListings();
-  }, [route?.params]);
 
   const loadMoreListings = () => {
     if (listings.length > 0) {
