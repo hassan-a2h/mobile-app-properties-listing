@@ -1,9 +1,12 @@
 import React from 'react';
 import { View, Text, Image, TouchableOpacity, Linking } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import styles from './Header.styles';
 import carousal1 from '../../../assets/img/carousel-1.jpg';
 
 const Header = () => {
+  const navigation = useNavigation();
+
   return (
     <View style={styles.container}>
       <View style={styles.row}>
@@ -16,7 +19,7 @@ const Header = () => {
           </Text>
           <TouchableOpacity
             style={styles.button}
-            onPress={() => Linking.openURL('#listings')}
+            onPress={() => navigation.navigate('All Listings')}
           >
             <Text style={styles.buttonText}>Get Started</Text>
           </TouchableOpacity>
