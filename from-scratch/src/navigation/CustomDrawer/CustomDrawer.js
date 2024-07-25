@@ -32,7 +32,7 @@ const CustomDrawer = ({ unreadMessagesCount, ...props }) => {
                 label={route.name}
                 onPress={() => props.navigation.navigate(route.name)}
                 labelStyle={[styles.itemText, focused && styles.itemTextFocused]}
-                style={[styles.item, focused && styles.itemFocused]}
+                style={[styles.chatItem, focused && styles.chatSelected]}
               />
             );
           }
@@ -94,14 +94,17 @@ const styles = StyleSheet.create({
     backgroundColor: '#00BE8E',
   },
   chatSelected: {
-    backgroundColor: '#00BE8E',
+    backgroundColor: '#d2fff4',
+    borderWidth: 1,
+    borderRadius: 4,
+    borderColor: '#00BE8E',
   },
   value: {
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 12,
-    marginLeft: 8,
-    backgroundColor: '#6A6A6A',
+    marginLeft: 6,
+    backgroundColor: '#00BE8E',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -111,10 +114,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   itemTextFocused: {
-    color: 'white',
+    color: '#007053',
   },
   logout: {
-    backgroundColor: '#FFCCCB',
+    backgroundColor: '#FFDFDF',
+    borderWidth: 1,
+    borderColor: '#ffcccb',
   },
 });
 
