@@ -1,53 +1,75 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, Image, TouchableOpacity, StyleSheet, FlatList } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import styles from './Listing.styles';
 import { useAuth } from '../../context/AuthContext';
+import { useChat } from '../../context/ChatContext';
 import propertyImg from '../../../assets/img/property-1.jpg';
 import Toast from 'react-native-toast-message';
+import { Ionicons } from '@expo/vector-icons';
+import ListingNavigator from '../../navigation/CustomNavigators/ListingNavigator';
 
-const Listing = ({ route }) => {
-  let limit = 4;
-  let fromUser = false;
-
-  console.log('route:', route?.params);
-
-  if (route?.params) {
-    limit = route?.params?.limit;
-    fromUser = route?.params?.fromUser;
-  }
-
-  const defaultLimit = limit;
+const Listing = ({ route, initialLimit = 4 }) => {
+  const [listings, setListings] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const [lastListingDate, setLastListingDate] = useState(null);
+  
   const navigation = useNavigation();
   const { user } = useAuth();
+  const { setNewChat } = useChat();
   const userId = user?.id;
-  const [listings, setListings] = useState([]);
 
-  useEffect(() => {
-    fetchListings();
-  }, []);
+  const handleEdit = (id) => {
+    navigation.navigate('Create Listing', { id, editing: true });
+  };
 
-  const fetchListings = async () => {
-    const requestParams = {};
+  const fetchListings = useCallback(async (lastDate = null) => {
+    if (isLoading || !hasMore) return;
 
-    requestParams.limit = defaultLimit;
-    if (fromUser) requestParams.agentId = userId;
+    setIsLoading(true);
+    const requestParams = {
+      limit: initialLimit,
+      lastListingDate: lastDate,
+    };
 
-    console.log('requestParams:', requestParams);
+    console.log('Listing component, params: ', route?.params);
+
+    if (route?.params?.fromUser) requestParams.agentId = userId;
+    if (route?.params?.category) requestParams.category = route.params.category;
 
     try {
-      const response = await axios.get('/api/listings', {
-        params: requestParams,
-      });
-      setListings(response.data);
+      const response = await axios.get('/api/listings', { params: requestParams });
+      const newListings = response.data;
+      setListings((prevListings) => [...prevListings, ...newListings]);
+      setHasMore(newListings.length === initialLimit);
+      if (newListings.length > 0) {
+        setLastListingDate(newListings[newListings.length - 1].createdAt);
+      }
     } catch (error) {
       console.error('Error fetching listings:', error);
       Toast.show({ type: 'error', text1: 'Error fetching listings.' });
+    } finally {
+      setIsLoading(false);
+    }
+  }, [initialLimit, route?.params, userId, isLoading, hasMore]);
+
+  useEffect(() => {
+    setListings([]);
+    setLastListingDate(null);
+    setHasMore(true);
+    fetchListings();
+  }, [route?.params]);
+
+  const loadMoreListings = () => {
+    if (listings.length > 0) {
+      fetchListings(lastListingDate);
     }
   };
+
   const handleDelete = async (id, postedBy) => {
-    if ((user.role !== 'admin' || user.role !== 'agent') && postedBy !== user.id) {
+    if ((user.role !== 'admin' && user.role !== 'agent') && postedBy !== user.id) {
       console.log('Can\'t delete other user\'s listing');
       return;
     }
@@ -71,15 +93,60 @@ const Listing = ({ route }) => {
         propertyTitle: listing._id,
       });
       const chat = response.data;
-      navigation.navigate('Chats', { userId, chatFromListing: chat });
+      setNewChat(chat);
+      navigation.navigate('Chats');
     } catch (error) {
       console.error('Error creating or fetching chat:', error);
     }
   };
 
-  return (
-    <ScrollView style={styles.container}>
-      {listings.length > 0 ? (
+  const renderListingItem = ({ item: listing }) => (
+    <View style={styles.listingItem} key={listing._id}>
+      <View style={styles.imageContainer}>
+        <Image source={propertyImg} style={styles.image} />
+        <View style={styles.badgeContainer}>
+          <Text style={styles.badgeText}>For Sale</Text>
+        </View>
+        <View style={styles.statusContainer}>
+          <Text style={styles.statusText}>{listing.status}</Text>
+        </View>
+      </View>
+      <View style={styles.detailsContainer}>
+        <Text style={styles.priceText}>${listing.price}</Text>
+        <Text style={styles.titleText}>{listing.title.slice(0, 22)}</Text>
+        <Text style={styles.descriptionText}>{listing.description}</Text>
+      </View>
+      <View style={styles.actionsContainer}>
+        <Text style={styles.actionText}>1000 Sqft</Text>
+        {listing.postedBy === userId && (
+          <>
+            <TouchableOpacity
+              style={styles.editButton}
+              onPress={() => handleEdit(listing._id)}
+            >
+              <Text style={styles.editButtonText}>Edit</Text>
+              <Ionicons name="create-outline" size={16} color="#00B98E" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.editButton, styles.deleteButton]}
+              onPress={() => handleDelete(listing._id, listing.postedBy)}
+            >
+              <Text style={styles.deleteButtonText}>Delete</Text>
+              <Ionicons name="trash-outline" size={16} color="red" />
+            </TouchableOpacity>
+          </>
+        )}
+        {listing.postedBy !== userId &&         
+        <TouchableOpacity style={styles.contactButton} onPress={() => handleContact(listing)} >
+          <Text style={styles.contactButtonText}>Contact</Text>
+        </TouchableOpacity>}
+      </View>
+    </View>
+  );
+
+  const renderHeader = () => (
+    <>
+      {listings.length > 0 && (
         <View>
           <View style={styles.header}>
             <Text style={styles.headerTitle}>Property Listing</Text>
@@ -89,7 +156,7 @@ const Listing = ({ route }) => {
           </View>
           <View style={styles.filterContainer}>
             <TouchableOpacity style={[styles.filterButton, styles.activeFilter]}>
-              <Text style={styles.filterButtonText}>Featured</Text>
+              <Text style={styles.filterButtonTextActive}>Featured</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.filterButton}>
               <Text style={styles.filterButtonText}>For Sell</Text>
@@ -99,59 +166,30 @@ const Listing = ({ route }) => {
             </TouchableOpacity>
           </View>
         </View>
-      ) : (
+      )}
+      {listings.length === 0 && !isLoading && (
         <View style={styles.noListings}>
           <Text style={styles.noListingsText}>No Properties Listed</Text>
         </View>
       )}
-      <View style={styles.listingsContainer}>
-        {listings.map((listing) => (
-          <View style={styles.listingItem} key={listing._id}>
-            <View style={styles.imageContainer}>
-              <Image source={propertyImg} style={styles.image} />
-              <View style={styles.badgeContainer}>
-                <Text style={styles.badgeText}>For Sale</Text>
-              </View>
-              <View style={styles.statusContainer}>
-                <Text style={styles.statusText}>{listing.status}</Text>
-              </View>
-            </View>
-            <View style={styles.detailsContainer}>
-              <Text style={styles.priceText}>${listing.price}</Text>
-              <Text style={styles.titleText}>{listing.title.slice(0, 22)}</Text>
-              <Text style={styles.descriptionText}>{listing.description}</Text>
-            </View>
-            <View style={styles.actionsContainer}>
-              <Text style={styles.actionText}>1000 Sqft</Text>
-              {listing.postedBy === userId && (
-                <>
-                  <TouchableOpacity
-                    style={styles.editButton}
-                    onPress={() => navigation.navigate('ListingForm', { screen: 'ListingFrom', id: listing._id })}
-                  >
-                    <Text style={styles.editButtonText}>Edit</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={styles.deleteButton}
-                    onPress={() => handleDelete(listing._id, listing.postedBy)}
-                  >
-                    <Text style={styles.deleteButtonText}>Delete</Text>
-                  </TouchableOpacity>
-                </>
-              )}
-              {listing.postedBy !== userId && (
-                <TouchableOpacity
-                style={styles.deleteButton}
-                onPress={() => handleContact(listing)}
-              >
-                <Text style={styles.deleteButtonText}>Contact</Text>
-              </TouchableOpacity>
-              )}
-            </View>
-          </View>
-        ))}
-      </View>
-    </ScrollView>
+    </>
+  );
+
+  const renderFooter = () => (
+    isLoading ? <Text style={styles.loadingText}>Loading...</Text> : null
+  );
+
+  return (
+    <FlatList
+      data={listings}
+      renderItem={renderListingItem}
+      keyExtractor={(item) => item._id}
+      onEndReached={loadMoreListings}
+      onEndReachedThreshold={0.1}
+      ListHeaderComponent={renderHeader}
+      ListFooterComponent={renderFooter}
+      style={styles.container}
+    />
   );
 };
 
