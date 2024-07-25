@@ -14,10 +14,16 @@ const CustomDrawerTopbar = ({ title, value }) => {
           <TouchableOpacity onPress={() => navigation.openDrawer()}>
             <Ionicons name="menu" size={24} color="black" />
           </TouchableOpacity>
-            {/* { value > 0 && <Text style={styles.value}>{value}</Text> } */}
-            { value > 0 && <View style={styles.value}><Text style={styles.messageNotification}>{value > 9 ? '9+' : value}</Text></View> }
+          {value > 0 && (
+            <View style={styles.value}>
+              <Text style={styles.messageNotification}>{value > 9 ? '9+' : value}</Text>
+            </View>
+          )}
         </View>
-        <Text style={styles.title}>{title}</Text>
+        <View style={styles.titleContainer}>
+          <Text style={styles.title}>{title}</Text>
+        </View>
+        <View style={styles.rightPlaceholder} />
       </View>
     </SafeAreaView>
   );
@@ -31,33 +37,34 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: 8,
-    justifyContent: 'space-between',
+  },
+  leftIconContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  titleContainer: {
+    flex: 2,
+    alignItems: 'center',
+  },
+  rightPlaceholder: {
+    flex: 1,
   },
   title: {
-    marginLeft: 10,
     fontSize: 20,
     fontWeight: 'bold',
   },
   value: {
     marginLeft: 10,
-    fontSize: 16,
-    color: '#ffffff',
-    // borderWidth: 1,
-    paddingRight: 8,
-    paddingLeft: 8,
-    paddingTop: 4,
-    paddingBottom: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
     borderRadius: 12,
-    // borderColor: 'gray',
     backgroundColor: '#00BE8E',
   },
   messageNotification: {
     color: '#ffffff',
+    fontSize: 16,
   },
-  leftIconContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  }
 });
 
 export default CustomDrawerTopbar;
