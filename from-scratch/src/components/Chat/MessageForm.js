@@ -1,6 +1,7 @@
 import { View, TextInput, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { useState } from 'react';
 import sendMessage from '../../utils/sendMessage';
+import { Ionicons } from '@expo/vector-icons';
 
 function MessageForm({ socket, userId, currentChat, setMessages }) {
   const [ userMessage, setUserMessage ] = useState('');
@@ -14,7 +15,7 @@ function MessageForm({ socket, userId, currentChat, setMessages }) {
         placeholder="Type a message..."
       />
       <TouchableOpacity disabled={ userMessage.trim() === '' } onPress={() => sendMessage(socket, userId, currentChat, userMessage, setMessages, setUserMessage)} style={styles.sendButton}>
-        <Text style={styles.sendButtonText}>Send</Text>
+        <Ionicons name="send" size={24} color="white" />
       </TouchableOpacity>
     </View>
   );
@@ -24,8 +25,7 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     marginBottom: 25,
-    padding: 10,
-    borderTopWidth: 1,
+    paddingBottom: 10,
     borderTopColor: '#DDDDDD',
   },
   input: {
@@ -38,7 +38,7 @@ const styles = StyleSheet.create({
   sendButton: {
     backgroundColor: '#26C49F',
     marginLeft: 10,
-    borderRadius: 12,
+    borderRadius: 36,
     alignItems: 'center',
     justifyContent: 'center',
     padding: 10,
