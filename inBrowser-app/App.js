@@ -1,7 +1,12 @@
 import { WebView } from 'react-native-webview';
+import { Platform } from 'react-native';
 
 export default function App() {
-  const webAppUrl = 'http://10.0.2.2:5001';
+  let webAppUrl = 'http://10.0.2.2:3000';
+
+  if (Platform.OS === 'ios') {
+    webAppUrl = 'http://localhost:3000';
+  }
 
   return (
     <>
