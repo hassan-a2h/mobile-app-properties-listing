@@ -25,19 +25,19 @@ const Listing = ({ route, initialLimit = 4 }) => {
     setLastListingDate(null);
     setHasMore(true);
     fetchListings();
-  }, [route?.params]);
+  }, [route?.params, navigation]);
 
   useLayoutEffect(() => {
     if (route?.params?.name) {
       navigation.setOptions({ title: route.params.name });
     }
   }, [navigation, route?.params?.name]);
-
+  
   const handleEdit = (id) => {
     navigation.navigate('Create Listing', { id, editing: true });
   };
 
-  const fetchListings = useCallback(async (lastDate = null) => {
+  const fetchListings = useCallback(async (lastDate = null, fromDelete = false) => {
     if (isLoading || !hasMore) return;
 
     setIsLoading(true);
@@ -54,8 +54,15 @@ const Listing = ({ route, initialLimit = 4 }) => {
     try {
       const response = await axios.get('/api/listings', { params: requestParams });
       const newListings = response.data;
-      setListings((prevListings) => [...prevListings, ...newListings]);
+      
+      if (fromDelete) {
+        setListings(newListings);
+      } else {
+        setListings((prevListings) => [...prevListings, ...newListings]);
+      }
+  
       setHasMore(newListings.length === initialLimit);
+
       if (newListings.length > 0) {
         setLastListingDate(newListings[newListings.length - 1].createdAt);
       }
@@ -78,10 +85,10 @@ const Listing = ({ route, initialLimit = 4 }) => {
       console.log('Can\'t delete other user\'s listing');
       return;
     }
-
+  
     try {
       await axios.delete(`/api/listings/${id}`);
-      fetchListings();
+      setListings(prevListings => prevListings.filter(listing => listing._id !== id));
       Toast.show({ type: 'success', text1: 'Listing deleted successfully' });
     } catch (error) {
       console.error('Error deleting listing:', error);

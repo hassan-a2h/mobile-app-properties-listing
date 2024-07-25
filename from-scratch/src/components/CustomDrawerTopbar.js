@@ -11,14 +11,14 @@ const CustomDrawerTopbar = ({ title, value }) => {
       <StatusBar barStyle="dark-content" />
       <View style={styles.header}>
         <View style={styles.leftIconContainer}>
-          <TouchableOpacity onPress={() => navigation.openDrawer()}>
+          <TouchableOpacity onPress={() => navigation.openDrawer()} style={styles.drawerButton}>
             <Ionicons name="menu" size={24} color="black" />
+            {value > 0 && (
+              <View style={styles.value}>
+                <Text style={styles.messageNotification}>{value > 9 ? '9+' : value}</Text>
+              </View>
+            )}
           </TouchableOpacity>
-          {value > 0 && (
-            <View style={styles.value}>
-              <Text style={styles.messageNotification}>{value > 9 ? '9+' : value}</Text>
-            </View>
-          )}
         </View>
         <View style={styles.titleContainer}>
           <Text style={styles.title}>{title}</Text>
@@ -54,16 +54,24 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
   },
+  drawerButton: {
+    position: 'relative',
+  },
   value: {
-    marginLeft: 10,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    position: 'absolute',
+    top: -5,
+    right: -5,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
     borderRadius: 12,
     backgroundColor: '#00BE8E',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   messageNotification: {
     color: '#ffffff',
-    fontSize: 16,
+    fontSize: 12,
+    fontWeight: 'bold',
   },
 });
 

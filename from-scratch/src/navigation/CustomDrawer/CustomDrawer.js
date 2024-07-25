@@ -55,7 +55,7 @@ const ChatDrawerItem = (unreadMessagesCount, focused) => {
       { unreadMessagesCount > 0 && 
         <View style={styles.value}>
           <Text style={styles.messageNotification}>{unreadMessagesCount > 9 ? '9+' : unreadMessagesCount}</Text>
-        </View> 
+        </View>
       }
     </View>
   );
@@ -97,20 +97,18 @@ const styles = StyleSheet.create({
     backgroundColor: '#00BE8E',
   },
   value: {
-    marginLeft: 8,
-    fontSize: 1,
-    color: '#ffffff',
-    // borderWidth: 1,
-    paddingRight: 8,
-    paddingLeft: 8,
-    paddingTop: 4,
-    paddingBottom: 4,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
     borderRadius: 12,
-    // borderColor: 'gray',
-    backgroundColor: '#6F6F6F',
+    marginLeft: 8,
+    backgroundColor: '#6A6A6A',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   messageNotification: {
     color: '#ffffff',
+    fontSize: 12,
+    fontWeight: 'bold',
   },
   itemTextFocused: {
     color: 'white',
