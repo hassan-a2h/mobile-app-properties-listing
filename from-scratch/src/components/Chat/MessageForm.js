@@ -14,7 +14,7 @@ function MessageForm({ socket, userId, currentChat, setMessages }) {
         placeholder="Type a message..."
       />
       <TouchableOpacity disabled={ userMessage.trim() === '' } onPress={() => sendMessage(socket, userId, currentChat, userMessage, setMessages, setUserMessage)} style={styles.sendButton}>
-        <Text>Send</Text>
+        <Text style={styles.sendButtonText}>Send</Text>
       </TouchableOpacity>
     </View>
   );
@@ -36,9 +36,16 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   sendButton: {
+    backgroundColor: '#26C49F',
+    marginLeft: 10,
+    borderRadius: 12,
+    alignItems: 'center',
     justifyContent: 'center',
     padding: 10,
   },
+  sendButtonText: {
+    color: '#FFFFFF',
+  }
 });
 
 export default MessageForm;
