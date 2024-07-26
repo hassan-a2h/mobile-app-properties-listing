@@ -1,18 +1,37 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   View,
   Text,
   TextInput,
   TouchableOpacity,
   StyleSheet,
+  Animated,
+  Dimensions,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
+
+const { height } = Dimensions.get("window");
 
 const FilterComponent = ({ onApplyFilters }) => {
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
   const [category, setCategory] = useState("");
   const [location, setLocation] = useState("");
+  const [showPicker, setShowPicker] = useState(false);
+
+  const slideAnimation = useRef(new Animated.Value(height)).current;
+
+  const categoryItems = [
+    { label: "Select Category", value: "" },
+    { label: "Home", value: "home" },
+    { label: "Villa", value: "villa" },
+    { label: "Apartment", value: "apartment" },
+    { label: "Building", value: "building" },
+    { label: "Office", value: "office" },
+    { label: "Townhouse", value: "townhouse" },
+    { label: "Shop", value: "shop" },
+    { label: "Garage", value: "garage" },
+  ];
 
   const handleApplyFilters = () => {
     const filters = {
@@ -24,9 +43,51 @@ const FilterComponent = ({ onApplyFilters }) => {
     onApplyFilters(filters);
   };
 
+  const handleClearFilter = () => {
+    setMinPrice("");
+    setMaxPrice("");
+    setCategory("");
+    setLocation("");
+
+    const filters = {
+      minPrice: minPrice ? Number(minPrice) : undefined,
+      maxPrice: maxPrice ? Number(maxPrice) : undefined,
+      category: category || undefined,
+      location: location || undefined,
+    };
+
+    onApplyFilters(filters);
+  };
+
+  const togglePicker = () => {
+    if (showPicker) {
+      Animated.timing(slideAnimation, {
+        toValue: height,
+        duration: 300,
+        useNativeDriver: true,
+      }).start(() => setShowPicker(false));
+    } else {
+      setShowPicker(true);
+      Animated.timing(slideAnimation, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+    }
+  };
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Filters</Text>
+      <View style={styles.header}>
+        <Text style={styles.title}>Filters</Text>
+        <TouchableOpacity
+          style={styles.clearButton}
+          onPress={handleClearFilter}
+        >
+          <Text style={styles.clearButtonText}>Clear</Text>
+        </TouchableOpacity>
+      </View>
+
       <View style={styles.row}>
         <TextInput
           style={styles.input}
@@ -43,21 +104,13 @@ const FilterComponent = ({ onApplyFilters }) => {
           keyboardType="numeric"
         />
       </View>
-      <Picker
-        selectedValue={category}
-        onValueChange={(itemValue) => setCategory(itemValue)}
-        style={styles.picker}
-      >
-        <Picker.Item label="Select Category" value="" />
-        <Picker.Item label="Villa" value="villa" />
-        <Picker.Item label="Home" value="home" />
-        <Picker.Item label="Apartment" value="apartment" />
-        <Picker.Item label="Building" value="building" />
-        <Picker.Item label="Office" value="office" />
-        <Picker.Item label="Townhouse" value="townhouse" />
-        <Picker.Item label="Shop" value="shop" />
-        <Picker.Item label="Garage" value="garage" />
-      </Picker>
+      <TouchableOpacity style={styles.pickerTrigger} onPress={togglePicker}>
+        <Text>
+          {category
+            ? categoryItems.find((item) => item.value === category).label
+            : "Select Category"}
+        </Text>
+      </TouchableOpacity>
       <TextInput
         style={styles.input}
         placeholder="Location"
@@ -67,46 +120,93 @@ const FilterComponent = ({ onApplyFilters }) => {
       <TouchableOpacity style={styles.button} onPress={handleApplyFilters}>
         <Text style={styles.buttonText}>Apply Filters</Text>
       </TouchableOpacity>
+
+      {showPicker && (
+        <TouchableOpacity
+          style={StyleSheet.absoluteFill}
+          onPress={togglePicker}
+        />
+      )}
+      <Animated.View
+        style={[
+          styles.pickerContainer,
+          { transform: [{ translateY: slideAnimation }] },
+        ]}
+      >
+        <Picker
+          selectedValue={category}
+          onValueChange={(itemValue) => {
+            setCategory(itemValue);
+            togglePicker();
+          }}
+        >
+          {categoryItems.map((item) => (
+            <Picker.Item
+              key={item.value}
+              label={item.label}
+              value={item.value}
+            />
+          ))}
+        </Picker>
+      </Animated.View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    padding: 16,
+    padding: 12,
     borderWidth: 1,
     borderColor: "#ccc",
     backgroundColor: "#fff",
     borderRadius: 8,
     marginBottom: 16,
   },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  clearButton: {
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderWidth: 1,
+    borderRadius: 4,
+    borderColor: "#ccc",
+  },
+  clearButtonText: {
+    fontSize: 12,
+    color: "#555",
+  },
   title: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "bold",
-    marginBottom: 12,
+    marginBottom: 8,
   },
   row: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 12,
+    marginBottom: 8,
   },
   input: {
     flex: 1,
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 4,
-    padding: 8,
-    // marginRight: 8,
+    padding: 6,
+    height: 36,
   },
-  picker: {
+  pickerTrigger: {
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 4,
-    marginBottom: 12,
+    padding: 8,
+    marginBottom: 8,
   },
   button: {
     backgroundColor: "#00B98E",
-    padding: 12,
+    padding: 10,
     marginTop: 8,
     borderRadius: 4,
     alignItems: "center",
@@ -114,6 +214,17 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "white",
     fontWeight: "bold",
+  },
+  pickerContainer: {
+    position: "absolute",
+    height: 230,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: "white",
+    borderWidth: 1,
+    borderRadius: 4,
+    borderColor: "#ccc",
   },
 });
 
