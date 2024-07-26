@@ -1,20 +1,33 @@
-import React, { useState, useEffect, useCallback, useLayoutEffect } from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet, FlatList } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import axios from 'axios';
-import styles from './Listing.styles';
-import { useAuth } from '../../context/AuthContext';
-import { useChat } from '../../context/ChatContext';
-import propertyImg from '../../../assets/img/property-1.jpg';
-import Toast from 'react-native-toast-message';
-import { Ionicons } from '@expo/vector-icons';
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useLayoutEffect,
+} from "react";
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  StyleSheet,
+  FlatList,
+} from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import axios from "axios";
+import styles from "./Listing.styles";
+import { useAuth } from "../../context/AuthContext";
+import { useChat } from "../../context/ChatContext";
+import propertyImg from "../../../assets/img/property-1.jpg";
+import Toast from "react-native-toast-message";
+import { Ionicons } from "@expo/vector-icons";
+import ListingFilter from "../ListingFilter";
 
-const Listing = ({ route, initialLimit = 4 }) => {
+const Listing = ({ route, initialLimit = 4, calledFrom }) => {
   const [listings, setListings] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [lastListingDate, setLastListingDate] = useState(null);
-  
+
   const navigation = useNavigation();
   const { user } = useAuth();
   const { setNewChat } = useChat();
@@ -32,47 +45,53 @@ const Listing = ({ route, initialLimit = 4 }) => {
       navigation.setOptions({ title: route.params.name });
     }
   }, [navigation, route?.params?.name]);
-  
+
   const handleEdit = (id) => {
-    navigation.navigate('Create Listing', { id, editing: true });
+    navigation.navigate("Create Listing", { id, editing: true });
   };
 
-  const fetchListings = useCallback(async (lastDate = null, fromDelete = false) => {
-    if (isLoading || !hasMore) return;
+  const fetchListings = useCallback(
+    async (lastDate = null, fromDelete = false) => {
+      if (isLoading || !hasMore) return;
 
-    setIsLoading(true);
-    const requestParams = {
-      limit: initialLimit,
-      lastListingDate: lastDate,
-    };
+      setIsLoading(true);
+      const requestParams = {
+        limit: initialLimit,
+        lastListingDate: lastDate,
+      };
 
-    console.log('Listing component, params: ', route?.params);
+      console.log("Listing component, params: ", route?.params);
 
-    if (route?.params?.fromUser) requestParams.agentId = userId;
-    if (route?.params?.category) requestParams.category = route.params.category;
+      if (route?.params?.fromUser) requestParams.agentId = userId;
+      if (route?.params?.category)
+        requestParams.category = route.params.category;
 
-    try {
-      const response = await axios.get('/api/listings', { params: requestParams });
-      const newListings = response.data;
-      
-      if (fromDelete) {
-        setListings(newListings);
-      } else {
-        setListings((prevListings) => [...prevListings, ...newListings]);
+      try {
+        const response = await axios.get("/api/listings", {
+          params: requestParams,
+        });
+        const newListings = response.data;
+
+        if (fromDelete) {
+          setListings(newListings);
+        } else {
+          setListings((prevListings) => [...prevListings, ...newListings]);
+        }
+
+        setHasMore(newListings.length === initialLimit);
+
+        if (newListings.length > 0) {
+          setLastListingDate(newListings[newListings.length - 1].createdAt);
+        }
+      } catch (error) {
+        console.error("Error fetching listings:", error);
+        Toast.show({ type: "error", text1: "Error fetching listings." });
+      } finally {
+        setIsLoading(false);
       }
-  
-      setHasMore(newListings.length === initialLimit);
-
-      if (newListings.length > 0) {
-        setLastListingDate(newListings[newListings.length - 1].createdAt);
-      }
-    } catch (error) {
-      console.error('Error fetching listings:', error);
-      Toast.show({ type: 'error', text1: 'Error fetching listings.' });
-    } finally {
-      setIsLoading(false);
-    }
-  }, [initialLimit, route?.params, userId, isLoading, hasMore]);
+    },
+    [initialLimit, route?.params, userId, isLoading, hasMore]
+  );
 
   const loadMoreListings = () => {
     if (listings.length > 0) {
@@ -81,24 +100,30 @@ const Listing = ({ route, initialLimit = 4 }) => {
   };
 
   const handleDelete = async (id, postedBy) => {
-    if ((user.role !== 'admin' && user.role !== 'agent') && postedBy !== user.id) {
-      console.log('Can\'t delete other user\'s listing');
+    if (
+      user.role !== "admin" &&
+      user.role !== "agent" &&
+      postedBy !== user.id
+    ) {
+      console.log("Can't delete other user's listing");
       return;
     }
-  
+
     try {
       await axios.delete(`/api/listings/${id}`);
-      setListings(prevListings => prevListings.filter(listing => listing._id !== id));
-      Toast.show({ type: 'success', text1: 'Listing deleted successfully' });
+      setListings((prevListings) =>
+        prevListings.filter((listing) => listing._id !== id)
+      );
+      Toast.show({ type: "success", text1: "Listing deleted successfully" });
     } catch (error) {
-      console.error('Error deleting listing:', error);
-      Toast.show({ type: 'error', text1: 'Error deleting listing.' });
+      console.error("Error deleting listing:", error);
+      Toast.show({ type: "error", text1: "Error deleting listing." });
     }
   };
 
   const handleContact = async (listing) => {
     try {
-      const response = await axios.post('/api/c/chat', {
+      const response = await axios.post("/api/c/chat", {
         userId,
         agentId: listing.postedBy,
         listingId: listing._id,
@@ -106,9 +131,9 @@ const Listing = ({ route, initialLimit = 4 }) => {
       });
       const chat = response.data;
       setNewChat(chat);
-      navigation.navigate('Chats');
+      navigation.navigate("Chats");
     } catch (error) {
-      console.error('Error creating or fetching chat:', error);
+      console.error("Error creating or fetching chat:", error);
     }
   };
 
@@ -148,10 +173,14 @@ const Listing = ({ route, initialLimit = 4 }) => {
             </TouchableOpacity>
           </>
         )}
-        {listing.postedBy !== userId &&         
-        <TouchableOpacity style={styles.contactButton} onPress={() => handleContact(listing)} >
-          <Text style={styles.contactButtonText}>Contact</Text>
-        </TouchableOpacity>}
+        {listing.postedBy !== userId && (
+          <TouchableOpacity
+            style={styles.contactButton}
+            onPress={() => handleContact(listing)}
+          >
+            <Text style={styles.contactButtonText}>Contact</Text>
+          </TouchableOpacity>
+        )}
       </View>
     </View>
   );
@@ -163,19 +192,14 @@ const Listing = ({ route, initialLimit = 4 }) => {
           <View style={styles.header}>
             <Text style={styles.headerTitle}>Property Listing</Text>
             <Text style={styles.headerSubtitle}>
-              Eirmod sed ipsum dolor sit rebum labore magna erat. Tempor ut dolore lorem kasd vero ipsum sit eirmod sit diam justo sed rebum.
+              Eirmod sed ipsum dolor sit rebum labore magna erat. Tempor ut
+              dolore lorem kasd vero ipsum sit eirmod sit diam justo sed rebum.
             </Text>
           </View>
-          <View style={styles.filterContainer}>
-            <TouchableOpacity style={[styles.filterButton, styles.activeFilter]}>
-              <Text style={styles.filterButtonTextActive}>Featured</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.filterButton}>
-              <Text style={styles.filterButtonText}>For Sell</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.filterButton}>
-              <Text style={styles.filterButtonText}>For Rent</Text>
-            </TouchableOpacity>
+          <View>
+            {calledFrom !== "home" && calledFrom !== "categoryTab" && (
+              <ListingFilter />
+            )}
           </View>
         </View>
       )}
@@ -187,9 +211,8 @@ const Listing = ({ route, initialLimit = 4 }) => {
     </>
   );
 
-  const renderFooter = () => (
-    isLoading ? <Text style={styles.loadingText}>Loading...</Text> : null
-  );
+  const renderFooter = () =>
+    isLoading ? <Text style={styles.loadingText}>Loading...</Text> : null;
 
   return (
     <FlatList
