@@ -189,18 +189,9 @@ const Listing = ({ route, initialLimit = 4, calledFrom }) => {
     <>
       {listings.length > 0 && (
         <View>
-          <View style={styles.header}>
-            <Text style={styles.headerTitle}>Property Listing</Text>
-            <Text style={styles.headerSubtitle}>
-              Eirmod sed ipsum dolor sit rebum labore magna erat. Tempor ut
-              dolore lorem kasd vero ipsum sit eirmod sit diam justo sed rebum.
-            </Text>
-          </View>
-          <View>
-            {calledFrom !== "home" && calledFrom !== "categoryTab" && (
-              <ListingFilter />
-            )}
-          </View>
+          {calledFrom !== "home" && calledFrom !== "categoryTab" && (
+            <ListingFilter />
+          )}
         </View>
       )}
       {listings.length === 0 && !isLoading && (
