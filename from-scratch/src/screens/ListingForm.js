@@ -268,7 +268,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   textArea: {
-    height: 120,
+    height: 75,
   },
   dropdown: {
     borderColor: "#ddd",
@@ -279,6 +279,7 @@ const styles = StyleSheet.create({
     borderColor: "#ddd",
     borderRadius: 8,
     marginBottom: 15,
+    maxHeight: 1200,
   },
   error: {
     color: "#ff3b30",
