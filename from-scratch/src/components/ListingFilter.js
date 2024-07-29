@@ -9,14 +9,13 @@ import {
   Dimensions,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
+import { useFilter } from "../context/FilterContext";
 
 const { height } = Dimensions.get("window");
 
-const FilterComponent = ({ onApplyFilters }) => {
-  const [minPrice, setMinPrice] = useState("");
-  const [maxPrice, setMaxPrice] = useState("");
-  const [category, setCategory] = useState("");
-  const [location, setLocation] = useState("");
+const FilterComponent = ({ globalFilters, setFiltersActive }) => {
+  const { updateFilters } = useFilter();
+  const [filters, setFilters] = useState(globalFilters);
   const [showPicker, setShowPicker] = useState(false);
 
   const slideAnimation = useRef(new Animated.Value(height)).current;
@@ -34,29 +33,22 @@ const FilterComponent = ({ onApplyFilters }) => {
   ];
 
   const handleApplyFilters = () => {
-    const filters = {
-      minPrice: minPrice ? Number(minPrice) : undefined,
-      maxPrice: maxPrice ? Number(maxPrice) : undefined,
-      category: category || undefined,
-      location: location || undefined,
-    };
-    onApplyFilters(filters);
+    setFiltersActive(true);
+    updateFilters(filters);
+  };
+
+  const updateLocalFilters = (newFilters) => {
+    setFilters((prevFilters) => ({ ...prevFilters, ...newFilters }));
   };
 
   const handleClearFilter = () => {
-    setMinPrice("");
-    setMaxPrice("");
-    setCategory("");
-    setLocation("");
-
-    const filters = {
-      minPrice: minPrice ? Number(minPrice) : undefined,
-      maxPrice: maxPrice ? Number(maxPrice) : undefined,
-      category: category || undefined,
-      location: location || undefined,
-    };
-
-    onApplyFilters(filters);
+    setFiltersActive((prev) => false);
+    updateFilters({
+      minPrice: "",
+      maxPrice: "",
+      category: "",
+      location: "",
+    });
   };
 
   const togglePicker = () => {
@@ -87,68 +79,69 @@ const FilterComponent = ({ onApplyFilters }) => {
           <Text style={styles.clearButtonText}>Clear</Text>
         </TouchableOpacity>
       </View>
-
       <View style={styles.row}>
         <TextInput
           style={styles.input}
           placeholder="Min Price"
-          value={minPrice}
-          onChangeText={setMinPrice}
+          value={filters.minPrice}
+          onChangeText={(value) => updateLocalFilters({ minPrice: value })}
           keyboardType="numeric"
         />
         <TextInput
           style={styles.input}
           placeholder="Max Price"
-          value={maxPrice}
-          onChangeText={setMaxPrice}
+          value={filters.maxPrice}
+          onChangeText={(value) => updateLocalFilters({ maxPrice: value })}
           keyboardType="numeric"
         />
       </View>
       <TouchableOpacity style={styles.pickerTrigger} onPress={togglePicker}>
         <Text>
-          {category
-            ? categoryItems.find((item) => item.value === category).label
+          {filters.category
+            ? categoryItems.find((item) => item.value === filters.category)
+                .label
             : "Select Category"}
         </Text>
       </TouchableOpacity>
       <TextInput
         style={styles.input}
         placeholder="Location"
-        value={location}
-        onChangeText={setLocation}
+        value={filters.location}
+        onChangeText={(value) => updateLocalFilters({ location: value })}
       />
       <TouchableOpacity style={styles.button} onPress={handleApplyFilters}>
         <Text style={styles.buttonText}>Apply Filters</Text>
       </TouchableOpacity>
-
       {showPicker && (
         <TouchableOpacity
           style={StyleSheet.absoluteFill}
           onPress={togglePicker}
         />
       )}
-      <Animated.View
-        style={[
-          styles.pickerContainer,
-          { transform: [{ translateY: slideAnimation }] },
-        ]}
-      >
-        <Picker
-          selectedValue={category}
-          onValueChange={(itemValue) => {
-            setCategory(itemValue);
-            togglePicker();
-          }}
+      {showPicker && (
+        <Animated.View
+          style={[
+            styles.pickerContainer,
+            { transform: [{ translateY: slideAnimation }] },
+          ]}
         >
-          {categoryItems.map((item) => (
-            <Picker.Item
-              key={item.value}
-              label={item.label}
-              value={item.value}
-            />
-          ))}
-        </Picker>
-      </Animated.View>
+          <Picker
+            selectedValue={filters.category}
+            onValueChange={(itemValue) => {
+              updateLocalFilters({ category: itemValue });
+              togglePicker();
+            }}
+          >
+            {categoryItems.map((item) => (
+              <Picker.Item
+                key={item.value}
+                label={item.label}
+                value={item.value}
+              />
+            ))}
+          </Picker>
+        </Animated.View>
+      )}
     </View>
   );
 };

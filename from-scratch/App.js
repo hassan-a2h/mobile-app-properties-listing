@@ -1,11 +1,12 @@
-import React, { useEffect } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { AuthProvider, useAuth } from './src/context/AuthContext';
-import MainNavigator from './src/navigation/MainNavigator';
-import { LogBox } from 'react-native';
-import Toast from 'react-native-toast-message';
-import { initSocket, disconnectSocket } from './src/sockets/socketService';
-import ErrorBoundary from './src/screens/ErrorBoundary';
+import React, { useEffect } from "react";
+import { NavigationContainer } from "@react-navigation/native";
+import { AuthProvider, useAuth } from "./src/context/AuthContext";
+import { FilterProvider } from "./src/context/FilterContext";
+import MainNavigator from "./src/navigation/MainNavigator";
+import { LogBox } from "react-native";
+import Toast from "react-native-toast-message";
+import { initSocket, disconnectSocket } from "./src/sockets/socketService";
+import ErrorBoundary from "./src/screens/ErrorBoundary";
 
 const AppContent = () => {
   const { user } = useAuth();
@@ -27,11 +28,13 @@ export default function App() {
   return (
     <NavigationContainer>
       <AuthProvider>
-        <ErrorBoundary>
-          <AppContent />
-        </ErrorBoundary>
+        <FilterProvider>
+          <ErrorBoundary>
+            <AppContent />
+          </ErrorBoundary>
+        </FilterProvider>
       </AuthProvider>
-      <Toast position='bottom' />
+      <Toast position="bottom" />
     </NavigationContainer>
   );
 }

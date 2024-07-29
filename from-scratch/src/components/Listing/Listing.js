@@ -21,12 +21,16 @@ import propertyImg from "../../../assets/img/property-1.jpg";
 import Toast from "react-native-toast-message";
 import { Ionicons } from "@expo/vector-icons";
 import ListingFilter from "../ListingFilter";
+import { useFilter } from "../../context/FilterContext";
 
 const Listing = ({ route, initialLimit = 4, calledFrom }) => {
   const [listings, setListings] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [lastListingDate, setLastListingDate] = useState(null);
+
+  const { filters, updateFilters } = useFilter();
+  const [filtersActive, setFiltersActive] = useState(false);
 
   const navigation = useNavigation();
   const { user } = useAuth();
@@ -36,15 +40,19 @@ const Listing = ({ route, initialLimit = 4, calledFrom }) => {
   useEffect(() => {
     setListings([]);
     setLastListingDate(null);
-    setHasMore(true);
+    setHasMore((prev) => true);
     fetchListings();
-  }, [route?.params, navigation]);
+  }, [route, navigation, fetchListings, filters]);
 
-  useLayoutEffect(() => {
-    if (route?.params?.name) {
-      navigation.setOptions({ title: route.params.name });
-    }
-  }, [navigation, route?.params?.name]);
+  useEffect(() => {
+    updateFilters({
+      minPrice: "",
+      maxPrice: "",
+      category: "",
+      location: "",
+    });
+    setFiltersActive(false);
+  }, [route, navigation]);
 
   const handleEdit = (id) => {
     navigation.navigate("Create Listing", { id, editing: true });
@@ -56,8 +64,9 @@ const Listing = ({ route, initialLimit = 4, calledFrom }) => {
 
       setIsLoading(true);
       const requestParams = {
-        limit: initialLimit,
+        limit: initialLimit + 1,
         lastListingDate: lastDate,
+        ...filters,
       };
 
       console.log("Listing component, params: ", route?.params);
@@ -71,6 +80,7 @@ const Listing = ({ route, initialLimit = 4, calledFrom }) => {
           params: requestParams,
         });
         const newListings = response.data;
+        const hasMoreItems = newListings.length > initialLimit;
 
         if (fromDelete) {
           setListings(newListings);
@@ -78,7 +88,7 @@ const Listing = ({ route, initialLimit = 4, calledFrom }) => {
           setListings((prevListings) => [...prevListings, ...newListings]);
         }
 
-        setHasMore(newListings.length === initialLimit);
+        setHasMore(hasMoreItems);
 
         if (newListings.length > 0) {
           setLastListingDate(newListings[newListings.length - 1].createdAt);
@@ -90,7 +100,7 @@ const Listing = ({ route, initialLimit = 4, calledFrom }) => {
         setIsLoading(false);
       }
     },
-    [initialLimit, route?.params, userId, isLoading, hasMore]
+    [initialLimit, route?.params, userId, isLoading, hasMore, filters]
   );
 
   const loadMoreListings = () => {
@@ -139,15 +149,17 @@ const Listing = ({ route, initialLimit = 4, calledFrom }) => {
 
   const renderListingItem = ({ item: listing }) => (
     <View style={styles.listingItem} key={listing._id}>
-      <View style={styles.imageContainer}>
-        <Image source={propertyImg} style={styles.image} />
-        <View style={styles.badgeContainer}>
-          <Text style={styles.badgeText}>For Sale</Text>
+      {!filtersActive && (
+        <View style={styles.imageContainer}>
+          <Image source={propertyImg} style={styles.image} />
+          <View style={styles.badgeContainer}>
+            <Text style={styles.badgeText}>For Sale</Text>
+          </View>
+          <View style={styles.statusContainer}>
+            <Text style={styles.statusText}>{listing.status}</Text>
+          </View>
         </View>
-        <View style={styles.statusContainer}>
-          <Text style={styles.statusText}>{listing.status}</Text>
-        </View>
-      </View>
+      )}
       <View style={styles.detailsContainer}>
         <Text style={styles.priceText}>${listing.price}</Text>
         <Text style={styles.titleText}>{listing.title.slice(0, 22)}</Text>
@@ -187,13 +199,14 @@ const Listing = ({ route, initialLimit = 4, calledFrom }) => {
 
   const renderHeader = () => (
     <>
-      {listings.length > 0 && (
-        <View>
-          {calledFrom !== "home" && calledFrom !== "categoryTab" && (
-            <ListingFilter />
-          )}
-        </View>
-      )}
+      <View>
+        {calledFrom !== "home" && calledFrom !== "categoryTab" && (
+          <ListingFilter
+            globalFilters={filters}
+            setFiltersActive={setFiltersActive}
+          />
+        )}
+      </View>
       {listings.length === 0 && !isLoading && (
         <View style={styles.noListings}>
           <Text style={styles.noListingsText}>No Properties Listed</Text>
